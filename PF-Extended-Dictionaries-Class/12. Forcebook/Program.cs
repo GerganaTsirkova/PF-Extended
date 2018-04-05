@@ -18,17 +18,46 @@ namespace _12._Forcebook
                     string[] token = input.Split(new string[] { " | " }, StringSplitOptions.RemoveEmptyEntries).ToArray();
                     string side = token[0];
                     string user = token[1];
-                    if (!forcesides.Values.Any(x => x.Contains(user)))
+                    if (!forcesides.ContainsKey(side))
                     {
-                        if (forcesides.ContainsKey(side))
-                        {
-                            forcesides[side].Add(user);
-                        }
-                        else
+                        if (!forcesides.Values.Any(x => x.Contains(user)))
                         {
                             var inner = new List<string>();
                             inner.Add(user);
                             forcesides.Add(side, inner);
+                        }
+                        else
+                        {
+                            foreach (var item in forcesides)
+                            {
+                                if (item.Value.Contains(user))
+                                {
+                                    item.Value.Remove(user);
+                                    break;
+                                }
+                            }
+                            var inner = new List<string>();
+                            inner.Add(user);
+                            forcesides.Add(side, inner);
+                        }
+                    }
+                    else if (forcesides.ContainsKey(side))
+                    {
+                        if (!forcesides.Values.Any(x => x.Contains(user)))
+                        {
+                            forcesides[side].Add(user);
+                        }
+                        else if (forcesides.Values.Any(x => x.Contains(user)))
+                        {
+                            foreach (var item in forcesides)
+                            {
+                                if (item.Value.Contains(user))
+                                {
+                                    item.Value.Remove(user);
+                                    break;
+                                }
+                            }
+                            forcesides[side].Add(user);
                         }
                     }
                 }
@@ -38,21 +67,47 @@ namespace _12._Forcebook
                     string user = token[0];
                     string side = token[1];
                     int counter = 0;
-                    foreach (var item in forcesides)
+                    if (forcesides.ContainsKey(side))
                     {
-                        if (item.Value.Contains(user))
+                        foreach (var item in forcesides)
+                        {
+                            if (item.Value.Contains(user))
+                            {
+                                forcesides[side].Add(user);
+                                forcesides[item.Key].Remove(user);
+                                Console.WriteLine($"{user} joins the {side} side!");
+                                counter++;
+                                break;
+                            }
+                        }
+                        if ((counter == 0) && (forcesides.ContainsKey(side)))
                         {
                             forcesides[side].Add(user);
-                            forcesides[item.Key].Remove(user);
                             Console.WriteLine($"{user} joins the {side} side!");
-                            counter++;
-                            break;
                         }
                     }
-                    if ((counter == 0) && (forcesides.ContainsKey(side)))
+                    else if (!forcesides.ContainsKey(side))
                     {
-                        forcesides[side].Add(user);
-                        Console.WriteLine($"{user} joins the {side} side!");
+                        foreach (var item in forcesides)
+                        {
+                            if (item.Value.Contains(user))
+                            {
+                                var inner = new List<string>();
+                                inner.Add(user);
+                                forcesides[item.Key].Remove(user);
+                                forcesides.Add(side, inner);
+                                Console.WriteLine($"{user} joins the {side} side!");
+                                counter++;
+                                break;
+                            }
+                        }
+                        if (counter == 0)
+                        {
+                            var inner = new List<string>();
+                            inner.Add(user);
+                            forcesides.Add(side, inner);
+                            Console.WriteLine($"{user} joins the {side} side!");
+                        }
                     }
                 }
 
